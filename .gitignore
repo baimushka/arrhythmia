@@ -1,0 +1,6 @@
+mlruns/
+*.joblib
+*.pt
+data/raw/
+__pycache__/
+.env
