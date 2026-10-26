@@ -39,6 +39,8 @@
 ## 3. Проблема варианта (Дисбаланс классов)
 
 ![Распределение классов](class\_imbalance.png)
+![Выбросы](outliers_boxplot.png)
+![Корреляции](correlation_matrix.png)
 
 
 
