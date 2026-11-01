@@ -1,0 +1,3 @@
+OK (Тест 1): {'chunk_size': 0} отклонен. Ошибка: Input should be greater than 0
+OK (Тест 2): {'test_size': 1.5} отклонен. Ошибка: Input should be less than 1
+OK (Тест 3): {'contamination': -0.1} отклонен. Ошибка: Input should be greater than 0
