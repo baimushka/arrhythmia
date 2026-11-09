@@ -11,12 +11,11 @@ from configs.lab2_config import Lab2Config
 
 config = Lab2Config()
 
-# Читаем данные
 df = pd.read_csv(config.data_path, header=None, na_values="?")
 y = (df.iloc[:, -1] != 1).astype(int).values
 X = df.iloc[:, :-1].values
 
-# --- 1. ПРАВИЛЬНО: Imputer и Scaler только на train ---
+# Правильно: Imputer и Scaler только на train
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=config.test_size, random_state=config.random_state, stratify=y)
 imp_ok = SimpleImputer(strategy="median")
 sc_ok = StandardScaler()
@@ -27,7 +26,7 @@ model_ok = IsolationForest(random_state=config.random_state, n_jobs=-1)
 model_ok.fit(X_train_ok)
 auc_ok = roc_auc_score(y_test, -model_ok.decision_function(X_test_ok))
 
-# --- 2. НЕПРАВИЛЬНО (УТЕЧКА): Imputer и Scaler на всех данных ---
+# Неправильно (утечка): Imputer и Scaler на всех данных
 imp_leak = SimpleImputer(strategy="median")
 sc_leak = StandardScaler()
 X_all_imp = imp_leak.fit_transform(X)  # Утечка!
@@ -38,10 +37,9 @@ model_leak = IsolationForest(random_state=config.random_state, n_jobs=-1)
 model_leak.fit(X_train_leak)
 auc_leak = roc_auc_score(y_test, -model_leak.decision_function(X_test_leak))
 
-# Записываем результат
 with open("leakage_trap.log", "w", encoding="utf-8") as f:
     f.write(f"Правильный ROC-AUC (без утечки): {auc_ok:.4f}\n")
     f.write(f"Неправильный ROC-AUC (с утечкой): {auc_leak:.4f}\n")
     f.write(f"Разница: {(auc_leak - auc_ok):+.4f}\n")
 
-print("Лог ловушки утечки создан.")
+print("Лог ловушки утечки создан")
