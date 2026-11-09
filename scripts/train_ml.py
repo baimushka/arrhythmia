@@ -31,9 +31,9 @@ def get_file_hash(filepath):
             hasher.update(chunk)
     return hasher.hexdigest()
 
-# Функция для Precision@K (для профиля P6)
+# Функция для Precision@K (профиль P6)
 def precision_at_k(y_true, y_scores, k=20):
-    # Берем K самых аномальных предсказаний (наибольший y_scores)
+    # K самых аномальных предсказаний (наибольший y_scores)
     top_k_indices = np.argsort(y_scores)[-k:]
     top_k_true = y_true[top_k_indices]
     return np.sum(top_k_true) / k
@@ -50,7 +50,7 @@ def bootstrap_ci(y_true, y_scores, metric_fn, n_boot=500, alpha=0.05):
     n = len(y_true)
     for _ in range(n_boot):
         idx = rng.randint(0, n, n)
-        # Обработка крайних случаев, когда в выборке только 1 класс
+        # обработка крайних случаев, когда в выборке только 1 класс
         if len(np.unique(y_true[idx])) < 2: continue
         vals.append(metric_fn(y_true[idx], y_scores[idx]))
     return np.percentile(vals, [alpha/2*100, (1-alpha/2)*100])
@@ -65,7 +65,7 @@ def run_full(X, y, config):
     X_train = scaler.fit_transform(imputer.fit_transform(X_train))
     X_test = scaler.transform(imputer.transform(X_test))
     
-    # НАИВНЫЙ ОРИЕНТИР
+    # наивный ориентир
     dummy = DummyClassifier(strategy="most_frequent")
     dummy.fit(X_train, y_train)
     dummy_pred = dummy.predict(X_test)
@@ -88,7 +88,7 @@ def run_full(X, y, config):
     y_pred = (model.predict(X_test) == -1).astype(int)
     y_scores = -model.decision_function(X_test)
     
-    # НОВЫЕ МЕТРИКИ АКЦЕНТА
+    # новые метрики акцента
     pr_auc = average_precision_score(y_test, y_scores)
     p_at_k = precision_at_k(y_test, y_scores, k=20)
     
@@ -115,7 +115,7 @@ def run_chunk(X, y, config):
     X_train = scaler.fit_transform(imputer.fit_transform(X_train))
     X_test = scaler.transform(imputer.transform(X_test))
     
-    # НАИВНЫЙ ОРИЕНТИР
+    # наивный ориентир
     dummy = DummyClassifier(strategy="most_frequent")
     dummy.fit(X_train, y_train)
     dummy_f1 = f1_score(y_test, dummy.predict(X_test), zero_division=0)
@@ -178,13 +178,13 @@ if __name__ == "__main__":
     
     print(f"{args.mode}: ROC-AUC={metrics['roc_auc']:.3f} [{lo:.3f}, {hi:.3f}] | PR-AUC={metrics['pr_auc']:.3f} | P@20={metrics['precision_at_20']:.3f}")
     
-    # Сохраняем модель и считаем её хеш
+    # хеш и сохр модель
     model_path = f"reports/LAB2/model_{args.mode}.joblib"
     joblib.dump(model, model_path)
     model_hash = get_file_hash(model_path)
     print(f"Хеш модели ({args.mode}): {model_hash}")
     
-    # Сохраняем метрики
+    # сохр метрики
     res_df = pd.DataFrame([{"mode": args.mode, **metrics, "model_hash": model_hash}])
     res_df.to_csv(f"reports/LAB2/metrics_{args.mode}.csv", index=False)
 
